@@ -31,6 +31,7 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 
 bool CheckCrl(PCCERT_CONTEXT pCertContext)
 {	
+	BOOL result;
 	DWORD size;
 
 	CryptGetObjectUrl(
@@ -59,7 +60,7 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 	{
 		PCCRL_CONTEXT pCrlContext;
 
-		bool result = CryptRetrieveObjectByUrl(
+		result = CryptRetrieveObjectByUrl(
 			pUrlArray->rgwszUrl[i],
 			CONTEXT_OID_CRL,
 			0,
@@ -71,12 +72,20 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 			NULL
 		);
 
+		PCRL_INFO pCrlInfos[] = { pCrlContext->pCrlInfo };
+
+		result = CertVerifyCRLRevocation(
+			X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+			pCertContext->pCertInfo,
+			1,
+			pCrlInfos);
+
 		CertFreeCRLContext(pCrlContext);
 	}
 	
 	HeapFree(GetProcessHeap(), 0, pUrlArray);
 
-	return false;
+	return result;
 }
 
 void main()
