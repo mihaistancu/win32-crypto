@@ -1,6 +1,8 @@
-#include "stdio.h"
+#include <windows.h>
 
 void main()
 {
-	printf("hello world");
+	HCERTSTORE hCertStore = CertOpenSystemStore(NULL, L"My");
+
+	CertCloseStore(hCertStore, 0);
 }
