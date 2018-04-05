@@ -36,6 +36,33 @@ namespace ManagedCertificates
             return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }
 
+        static Win32.CRYPT_URL_ARRAY GetCrlUrls(IntPtr pCertContext)
+        {
+            IntPtr pszUrlOid = Win32.URL_OID_CERTIFICATE_CRL_DIST_POINT;
+            IntPtr pvPara = pCertContext;
+            int dwFlags = 0;
+            IntPtr pUrlArray = IntPtr.Zero;
+            int size = 0;
+            IntPtr pUrlInfo = IntPtr.Zero;
+            IntPtr pcbUrlInfo = IntPtr.Zero;
+            IntPtr pvReserved = IntPtr.Zero;
+
+            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
+            pUrlArray = Win32.Allocate<Win32.CRYPT_URL_ARRAY>(size);
+            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
+
+            return Marshal.PtrToStructure<Win32.CRYPT_URL_ARRAY>(pUrlArray);
+        }
+
+        static bool CheckCrl(IntPtr pCertContext)
+        {
+            bool result = false;
+
+            Win32.CRYPT_URL_ARRAY pUrlArray = GetCrlUrls(pCertContext);
+
+            return result;
+        }
+
         static void Main(string[] args)
         {
             IntPtr hCertStore = Win32.CertOpenSystemStore(IntPtr.Zero, "My");
@@ -43,6 +70,8 @@ namespace ManagedCertificates
             IntPtr pCertContext = GetCertificate(hCertStore);
 
             bool isOcspValid = CheckOcsp(pCertContext);
+
+            bool isCrlValid = CheckCrl(pCertContext);
 
             Win32.CertFreeCertificateContext(pCertContext);
 
