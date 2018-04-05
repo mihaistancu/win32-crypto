@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <wincrypt.h>
 
 PCCERT_CONTEXT GetCertificate(HCERTSTORE hCertStore)
 {
@@ -28,6 +29,24 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 		&revocationStatus);
 }
 
+bool CheckCrl(PCCERT_CONTEXT pCertContext)
+{
+	CRYPT_URL_ARRAY* urls = new CRYPT_URL_ARRAY;
+	DWORD size;
+
+	CryptGetObjectUrl(
+		URL_OID_CERTIFICATE_CRL_DIST_POINT,
+		(LPVOID)pCertContext,
+		0,
+		urls,	
+		&size,
+		NULL,
+		NULL,
+		NULL);
+	
+	return false;
+}
+
 void main()
 {
 	HCERTSTORE hCertStore = CertOpenSystemStore(NULL, L"My");
@@ -35,6 +54,8 @@ void main()
 	PCCERT_CONTEXT pCertContext = GetCertificate(hCertStore);
 
 	BOOL isOcspValid = CheckOcsp(pCertContext);
+
+	BOOL isCrlValid = CheckCrl(pCertContext);
 
 	CertFreeCertificateContext(pCertContext);
 
