@@ -28,61 +28,47 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 
 PCRYPT_URL_ARRAY GetCrlUrls(PCCERT_CONTEXT pCertContext)
 {
+	LPCSTR pszUrlOid = URL_OID_CERTIFICATE_CRL_DIST_POINT;
+	LPVOID pvPara = (LPVOID)pCertContext;
+	DWORD dwFlags = 0;
+	PCRYPT_URL_ARRAY pUrlArray = NULL;
 	DWORD size;
+	PCRYPT_URL_INFO pUrlInfo = NULL;
+	DWORD* pcbUrlInfo = NULL;
+	LPVOID pvReserved = NULL;
 
-	CryptGetObjectUrl(
-		URL_OID_CERTIFICATE_CRL_DIST_POINT,
-		(LPVOID)pCertContext,
-		0,
-		NULL,
-		&size,
-		NULL,
-		NULL,
-		NULL);
-
-	PCRYPT_URL_ARRAY pUrlArray = (PCRYPT_URL_ARRAY)HeapAlloc(GetProcessHeap(), 0, size);
-
-	CryptGetObjectUrl(
-		URL_OID_CERTIFICATE_CRL_DIST_POINT,
-		(LPVOID)pCertContext,
-		0,
-		pUrlArray,
-		&size,
-		NULL,
-		NULL,
-		NULL);
+	CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, &size, pUrlInfo, pcbUrlInfo, pvReserved);
+	pUrlArray = (PCRYPT_URL_ARRAY)HeapAlloc(GetProcessHeap(), 0, size);
+	CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, &size, pUrlInfo, pcbUrlInfo, pvReserved);
 
 	return pUrlArray;
 }
 
-PCCRL_CONTEXT DownloadCrl(LPWSTR url)
+PCCRL_CONTEXT DownloadCrl(LPWSTR pszUrl)
 {
 	PCCRL_CONTEXT pCrlContext;
+	LPCSTR pszObjectOid = CONTEXT_OID_CRL;
+	DWORD dwRetrievalFlags = 0;
+	DWORD dwTimeout = 15000;
+	LPVOID* ppvObject = (LPVOID*)&pCrlContext;
+	HCRYPTASYNC hAsyncRetrieve = NULL;
+	PCRYPT_CREDENTIALS pCredentials = NULL;
+	LPVOID pvVerify = NULL;
+	PCRYPT_RETRIEVE_AUX_INFO pAuxInfo = NULL;
 
-	CryptRetrieveObjectByUrl(
-		url,
-		CONTEXT_OID_CRL,
-		0,
-		15000,
-		(LPVOID*)&pCrlContext,
-		NULL,
-		NULL,
-		NULL,
-		NULL
-	);
+	CryptRetrieveObjectByUrl(pszUrl, pszObjectOid, dwRetrievalFlags, dwTimeout, ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
 
 	return pCrlContext;
 }
 
 BOOL Verify(PCCERT_CONTEXT pCertContext, PCCRL_CONTEXT pCrlContext)
 {
-	PCRL_INFO pCrlInfos[] = { pCrlContext->pCrlInfo };
+	DWORD dwCertEncodingType = X509_ASN_ENCODING | PKCS_7_ASN_ENCODING;
+	PCERT_INFO pCertId = pCertContext->pCertInfo;
+	DWORD cCrlInfo = 1;
+	PCRL_INFO rgpCrlInfo[] = { pCrlContext->pCrlInfo };
 
-	return CertVerifyCRLRevocation(
-		X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-		pCertContext->pCertInfo,
-		1,
-		pCrlInfos);
+	return CertVerifyCRLRevocation(dwCertEncodingType, pCertId, cCrlInfo, rgpCrlInfo);
 }
 
 bool CheckCrl(PCCERT_CONTEXT pCertContext)
