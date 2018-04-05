@@ -54,6 +54,25 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 		NULL,
 		NULL,
 		NULL);
+
+	for (int i = 0; i < pUrlArray->cUrl; i++)
+	{
+		PCCRL_CONTEXT pCrlContext;
+
+		bool result = CryptRetrieveObjectByUrl(
+			pUrlArray->rgwszUrl[i],
+			CONTEXT_OID_CRL,
+			0,
+			15000,
+			(LPVOID*)&pCrlContext,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		);
+
+		CertFreeCRLContext(pCrlContext);
+	}
 	
 	HeapFree(GetProcessHeap(), 0, pUrlArray);
 
