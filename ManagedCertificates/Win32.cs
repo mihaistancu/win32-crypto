@@ -5,18 +5,24 @@ namespace ManagedCertificates
 {
     class Win32
     {
-        public static IntPtr Allocate<T>(int size) where T : new()
-        {
-            var pointer = Marshal.AllocHGlobal(size);
-            Marshal.StructureToPtr(new T(), pointer, false);
-            return pointer;
-        }
-
         [StructLayout(LayoutKind.Sequential)]
         public class CRYPT_URL_ARRAY
         {
             public int cUrl;
-            public IntPtr rgwszUrl;
+            public string[] rgwszUrl;
+
+            public CRYPT_URL_ARRAY(IntPtr pointer)
+            {
+                cUrl = Marshal.ReadInt16(pointer);
+                IntPtr root = Marshal.ReadIntPtr(pointer, Marshal.SizeOf(cUrl));
+                IntPtr[] outPointers = new IntPtr[cUrl];
+                Marshal.Copy(root, outPointers, 0, cUrl);
+                rgwszUrl = new string[cUrl];
+                for (int i = 0; i < cUrl; i++)
+                {
+                    rgwszUrl[i] = Marshal.PtrToStringUni(outPointers[i]);
+                }
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]

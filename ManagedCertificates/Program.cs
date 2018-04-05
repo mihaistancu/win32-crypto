@@ -48,17 +48,22 @@ namespace ManagedCertificates
             IntPtr pvReserved = IntPtr.Zero;
 
             Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
-            pUrlArray = Win32.Allocate<Win32.CRYPT_URL_ARRAY>(size);
+            pUrlArray = Marshal.AllocHGlobal(size);
             Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
 
-            return Marshal.PtrToStructure<Win32.CRYPT_URL_ARRAY>(pUrlArray);
+            return new Win32.CRYPT_URL_ARRAY(pUrlArray);
         }
 
         static bool CheckCrl(IntPtr pCertContext)
         {
             bool result = false;
 
-            Win32.CRYPT_URL_ARRAY pUrlArray = GetCrlUrls(pCertContext);
+            Win32.CRYPT_URL_ARRAY urlArray = GetCrlUrls(pCertContext);
+
+            for (int i = 0; i < urlArray.cUrl; i++)
+            {
+                var url = urlArray.rgwszUrl[i];
+            }
 
             return result;
         }
