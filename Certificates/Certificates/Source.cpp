@@ -81,9 +81,13 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 	{
 		PCCRL_CONTEXT pCrlContext = DownloadCrl(pUrlArray->rgwszUrl[i]);
 
+		if (pCrlContext == NULL) continue;
+
 		result = Verify(pCertContext, pCrlContext);
 
 		CertFreeCRLContext(pCrlContext);
+
+		break;
 	}
 	
 	HeapFree(GetProcessHeap(), 0, pUrlArray);
