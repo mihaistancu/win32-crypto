@@ -2,31 +2,28 @@
 #include <wincrypt.h>
 
 PCCERT_CONTEXT GetCertificate(HCERTSTORE hCertStore)
-{
-	return CertFindCertificateInStore(
-		hCertStore,
-		PKCS_7_ASN_ENCODING | X509_ASN_ENCODING,
-		0,
-		CERT_FIND_SUBJECT_STR,
-		L"leaf",
-		NULL);
+{	
+	DWORD dwEncoding = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
+	DWORD dwFindFlags = 0;
+	DWORD dwFindType = CERT_FIND_SUBJECT_STR;
+	const void* pvFindParam = L"leaf";
+	PCCERT_CONTEXT pPrevCertContext = NULL;
+
+	return CertFindCertificateInStore(hCertStore, dwEncoding, dwFindFlags, dwFindType, pvFindParam, pPrevCertContext);
 }
 
 bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 {
-	PVOID dwCertPtr[] = { (PVOID)pCertContext };
-
+	DWORD dwEncoding = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
+	DWORD dwRevType = CERT_CONTEXT_REVOCATION_TYPE;
+	DWORD cContext = 1;
+	PVOID rgpvContext[] = { (PVOID)pCertContext };
+	DWORD dwFlags = CERT_VERIFY_REV_SERVER_OCSP_FLAG;
+	PCERT_REVOCATION_PARA pRevPara = NULL;
 	CERT_REVOCATION_STATUS revocationStatus;
 	revocationStatus.cbSize = sizeof(CERT_REVOCATION_STATUS);
 
-	return CertVerifyRevocation(
-		X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-		CERT_CONTEXT_REVOCATION_TYPE,
-		1,
-		dwCertPtr,
-		CERT_VERIFY_REV_SERVER_OCSP_FLAG,
-		NULL,
-		&revocationStatus);
+	return CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, &revocationStatus);
 }
 
 bool CheckCrl(PCCERT_CONTEXT pCertContext)
