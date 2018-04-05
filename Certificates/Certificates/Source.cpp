@@ -30,20 +30,33 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 }
 
 bool CheckCrl(PCCERT_CONTEXT pCertContext)
-{
-	CRYPT_URL_ARRAY* urls = new CRYPT_URL_ARRAY;
+{	
 	DWORD size;
 
 	CryptGetObjectUrl(
 		URL_OID_CERTIFICATE_CRL_DIST_POINT,
 		(LPVOID)pCertContext,
 		0,
-		urls,	
+		NULL,
+		&size,
+		NULL,
+		NULL,
+		NULL);
+
+	PCRYPT_URL_ARRAY pUrlArray = (PCRYPT_URL_ARRAY)HeapAlloc(GetProcessHeap(), 0, size);
+
+	CryptGetObjectUrl(
+		URL_OID_CERTIFICATE_CRL_DIST_POINT,
+		(LPVOID)pCertContext,
+		0,
+		pUrlArray,
 		&size,
 		NULL,
 		NULL,
 		NULL);
 	
+	HeapFree(GetProcessHeap(), 0, pUrlArray);
+
 	return false;
 }
 
