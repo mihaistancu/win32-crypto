@@ -16,20 +16,33 @@ namespace ManagedCertificates
             return Win32.CertFindCertificateInStore(hCertStore, dwEncoding, dwFindFlags, dwFindType, pvFindParam, pPrevCertContext);
         }
 
-        static IntPtr GetEmptyRevocationStatus()
+        static Win32.CERT_REVOCATION_STATUS GetEmptyRevocationStatus()
         {
-            var status = new Win32.CERT_REVOCATION_STATUS();
-            status.cbSize = Marshal.SizeOf(status);
-            IntPtr revocationStatus = Marshal.AllocHGlobal(status.cbSize);
-            Marshal.StructureToPtr(status, revocationStatus, false);
+            var revocationStatus = new Win32.CERT_REVOCATION_STATUS();
+            revocationStatus.cbSize = Marshal.SizeOf(revocationStatus);
             return revocationStatus;
+        }
+
+        static bool CheckOcsp(IntPtr pCertContext)
+        {
+            int dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
+            int dwRevType = Win32.CERT_CONTEXT_REVOCATION_TYPE;
+            int cContext = 1;
+            IntPtr[] rgpvContext = { pCertContext };
+            int dwFlags = Win32.CERT_VERIFY_REV_SERVER_OCSP_FLAG;
+            IntPtr pRevPara = IntPtr.Zero;
+            Win32.CERT_REVOCATION_STATUS revocationStatus = GetEmptyRevocationStatus();
+            
+            return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }
 
         static void Main(string[] args)
         {
             IntPtr hCertStore = Win32.CertOpenSystemStore(IntPtr.Zero, "My");
 
-            IntPtr hCertContext = GetCertificate(hCertStore);
+            IntPtr pCertContext = GetCertificate(hCertStore);
+
+            bool isOcspValid = CheckOcsp(pCertContext);
         }
     }
 }
