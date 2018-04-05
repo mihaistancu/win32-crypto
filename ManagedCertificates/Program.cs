@@ -6,7 +6,7 @@ namespace ManagedCertificates
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("hello world");
+            IntPtr hCertStore = Win32.CertOpenSystemStore(IntPtr.Zero, "My");
         }
     }
 }
