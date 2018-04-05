@@ -16,6 +16,15 @@ namespace ManagedCertificates
             return Win32.CertFindCertificateInStore(hCertStore, dwEncoding, dwFindFlags, dwFindType, pvFindParam, pPrevCertContext);
         }
 
+        static IntPtr GetEmptyRevocationStatus()
+        {
+            var status = new Win32.CERT_REVOCATION_STATUS();
+            status.cbSize = Marshal.SizeOf(status);
+            IntPtr revocationStatus = Marshal.AllocHGlobal(status.cbSize);
+            Marshal.StructureToPtr(status, revocationStatus, false);
+            return revocationStatus;
+        }
+
         static void Main(string[] args)
         {
             IntPtr hCertStore = Win32.CertOpenSystemStore(IntPtr.Zero, "My");
