@@ -64,5 +64,8 @@ namespace ManagedCertificates
 
         [DllImport("cryptnet.dll")]
         public static extern bool CryptRetrieveObjectByUrl(string pszUrl, IntPtr pszObjectOid, int dwRetrievalFlags, int dwTimeout, ref IntPtr ppvObject, IntPtr hAsyncRetrieve, IntPtr pCredentials, IntPtr pvVerify, IntPtr pAuxInfo);
+
+        [DllImport("crypt32.dll")]
+        internal static extern void CertFindCertificateInCRL(IntPtr pCertContext, IntPtr pCrlContext, int dwFlags, IntPtr pvReserved, ref IntPtr pCrlEntry);
     }
 }

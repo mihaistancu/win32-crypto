@@ -70,6 +70,17 @@ namespace ManagedCertificates
             return ppvObject;
         }
 
+        static bool Verify(IntPtr pCertContext, IntPtr pCrlContext)
+        {
+            int dwFlags = 0;
+            IntPtr pvReserved = IntPtr.Zero;
+            IntPtr pCrlEntry = IntPtr.Zero;
+
+            Win32.CertFindCertificateInCRL(pCertContext, pCrlContext, dwFlags, pvReserved, ref pCrlEntry);
+
+            return pCrlEntry == IntPtr.Zero;
+        }
+
         static bool CheckCrl(IntPtr pCertContext)
         {
             bool result = false;
@@ -81,6 +92,8 @@ namespace ManagedCertificates
                 IntPtr pCrlContext = DownloadCrl(urlArray.rgwszUrl[i]);
 
                 if (pCrlContext == IntPtr.Zero) continue;
+
+                result = Verify(pCertContext, pCrlContext);
 
                 break;
             }
