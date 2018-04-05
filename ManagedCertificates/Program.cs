@@ -95,6 +95,8 @@ namespace ManagedCertificates
 
                 result = Verify(pCertContext, pCrlContext);
 
+                Win32.CertFreeCRLContext(pCrlContext);
+
                 break;
             }
 

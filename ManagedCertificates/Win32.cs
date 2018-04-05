@@ -66,6 +66,9 @@ namespace ManagedCertificates
         public static extern bool CryptRetrieveObjectByUrl(string pszUrl, IntPtr pszObjectOid, int dwRetrievalFlags, int dwTimeout, ref IntPtr ppvObject, IntPtr hAsyncRetrieve, IntPtr pCredentials, IntPtr pvVerify, IntPtr pAuxInfo);
 
         [DllImport("crypt32.dll")]
-        internal static extern void CertFindCertificateInCRL(IntPtr pCertContext, IntPtr pCrlContext, int dwFlags, IntPtr pvReserved, ref IntPtr pCrlEntry);
+        public static extern void CertFindCertificateInCRL(IntPtr pCertContext, IntPtr pCrlContext, int dwFlags, IntPtr pvReserved, ref IntPtr pCrlEntry);
+
+        [DllImport("crypt32.dll")]
+        public static extern void CertFreeCRLContext(IntPtr pCrlContext);
     }
 }
