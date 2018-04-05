@@ -26,9 +26,8 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 	return CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, &revocationStatus);
 }
 
-bool CheckCrl(PCCERT_CONTEXT pCertContext)
-{	
-	BOOL result;
+PCRYPT_URL_ARRAY GetCrlUrls(PCCERT_CONTEXT pCertContext)
+{
 	DWORD size;
 
 	CryptGetObjectUrl(
@@ -53,29 +52,50 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 		NULL,
 		NULL);
 
+	return pUrlArray;
+}
+
+PCCRL_CONTEXT DownloadCrl(LPWSTR url)
+{
+	PCCRL_CONTEXT pCrlContext;
+
+	CryptRetrieveObjectByUrl(
+		url,
+		CONTEXT_OID_CRL,
+		0,
+		15000,
+		(LPVOID*)&pCrlContext,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+	);
+
+	return pCrlContext;
+}
+
+BOOL Verify(PCCERT_CONTEXT pCertContext, PCCRL_CONTEXT pCrlContext)
+{
+	PCRL_INFO pCrlInfos[] = { pCrlContext->pCrlInfo };
+
+	return CertVerifyCRLRevocation(
+		X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+		pCertContext->pCertInfo,
+		1,
+		pCrlInfos);
+}
+
+bool CheckCrl(PCCERT_CONTEXT pCertContext)
+{	
+	BOOL result;
+	
+	PCRYPT_URL_ARRAY pUrlArray = GetCrlUrls(pCertContext);
+
 	for (int i = 0; i < pUrlArray->cUrl; i++)
 	{
-		PCCRL_CONTEXT pCrlContext;
+		PCCRL_CONTEXT pCrlContext = DownloadCrl(pUrlArray->rgwszUrl[i]);
 
-		result = CryptRetrieveObjectByUrl(
-			pUrlArray->rgwszUrl[i],
-			CONTEXT_OID_CRL,
-			0,
-			15000,
-			(LPVOID*)&pCrlContext,
-			NULL,
-			NULL,
-			NULL,
-			NULL
-		);
-
-		PCRL_INFO pCrlInfos[] = { pCrlContext->pCrlInfo };
-
-		result = CertVerifyCRLRevocation(
-			X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-			pCertContext->pCertInfo,
-			1,
-			pCrlInfos);
+		result = Verify(pCertContext, pCrlContext);
 
 		CertFreeCRLContext(pCrlContext);
 	}
