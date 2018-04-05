@@ -69,12 +69,14 @@ PCCRL_CONTEXT DownloadCrl(LPWSTR pszUrl)
 
 BOOL Verify(PCCERT_CONTEXT pCertContext, PCCRL_CONTEXT pCrlContext)
 {
-	DWORD dwCertEncodingType = X509_ASN_ENCODING | PKCS_7_ASN_ENCODING;
-	PCERT_INFO pCertId = pCertContext->pCertInfo;
-	DWORD cCrlInfo = 1;
-	PCRL_INFO rgpCrlInfo[] = { pCrlContext->pCrlInfo };
+	DWORD dwFlags = 0;
+	void* pvReserved = NULL;
+	CRL_ENTRY crlEntry;
+	PCRL_ENTRY pCrlEntry = &crlEntry;
 
-	return CertVerifyCRLRevocation(dwCertEncodingType, pCertId, cCrlInfo, rgpCrlInfo);
+	CertFindCertificateInCRL(pCertContext, pCrlContext, dwFlags, pvReserved, &pCrlEntry);
+
+	return pCrlEntry == NULL;
 }
 
 bool CheckCrl(PCCERT_CONTEXT pCertContext)
