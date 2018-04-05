@@ -43,6 +43,10 @@ namespace ManagedCertificates
             IntPtr pCertContext = GetCertificate(hCertStore);
 
             bool isOcspValid = CheckOcsp(pCertContext);
+
+            Win32.CertFreeCertificateContext(pCertContext);
+
+            Win32.CertCloseStore(hCertStore, 0);
         }
     }
 }

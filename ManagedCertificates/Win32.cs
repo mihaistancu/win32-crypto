@@ -30,5 +30,11 @@ namespace ManagedCertificates
 
         [DllImport("crypt32.dll")]
         public static extern bool CertVerifyRevocation(int dwEncoding, int dwRevType, int cContext, IntPtr[] rgpvContext, int dwFlags, IntPtr pRevPara, CERT_REVOCATION_STATUS revocationStatus);
+
+        [DllImport("crypt32.dll")]
+        public static extern bool CertFreeCertificateContext(IntPtr pCertContext);
+
+        [DllImport("crypt32.dll")]
+        public static extern bool CertCloseStore(IntPtr hCertStore, int dwFlags);
     }
 }
