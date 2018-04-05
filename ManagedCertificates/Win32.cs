@@ -37,6 +37,7 @@ namespace ManagedCertificates
         }
 
         public static IntPtr URL_OID_CERTIFICATE_CRL_DIST_POINT = new IntPtr(2);
+        public static IntPtr CONTEXT_OID_CRL = new IntPtr(2);
         public const int CERT_VERIFY_REV_SERVER_OCSP_FLAG = 0x00000008;
         public const int CERT_CONTEXT_REVOCATION_TYPE = 1;
         public const int CERT_FIND_SUBJECT_STR = 0x00080007;
@@ -60,5 +61,8 @@ namespace ManagedCertificates
 
         [DllImport("cryptnet.dll")]
         public static extern bool CryptGetObjectUrl(IntPtr pszUrlOid, IntPtr pvPara, int dwFlags, IntPtr pUrlArray, ref int size, IntPtr pUrlInfo, IntPtr pcbUrlInfo, IntPtr pvReserved);
+
+        [DllImport("cryptnet.dll")]
+        public static extern bool CryptRetrieveObjectByUrl(string pszUrl, IntPtr pszObjectOid, int dwRetrievalFlags, int dwTimeout, ref IntPtr ppvObject, IntPtr hAsyncRetrieve, IntPtr pCredentials, IntPtr pvVerify, IntPtr pAuxInfo);
     }
 }

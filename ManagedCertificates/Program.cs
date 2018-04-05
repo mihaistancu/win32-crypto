@@ -54,6 +54,22 @@ namespace ManagedCertificates
             return new Win32.CRYPT_URL_ARRAY(pUrlArray);
         }
 
+        static IntPtr DownloadCrl(string url)
+        {
+            IntPtr pszObjectOid = Win32.CONTEXT_OID_CRL;
+            int dwRetrievalFlags = 0;
+            int dwTimeout = 15000;
+            IntPtr ppvObject = IntPtr.Zero;
+            IntPtr hAsyncRetrieve = IntPtr.Zero;
+            IntPtr pCredentials = IntPtr.Zero;
+            IntPtr pvVerify = IntPtr.Zero;
+            IntPtr pAuxInfo = IntPtr.Zero;
+
+            Win32.CryptRetrieveObjectByUrl(url, pszObjectOid, dwRetrievalFlags, dwTimeout, ref ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
+
+            return ppvObject;
+        }
+
         static bool CheckCrl(IntPtr pCertContext)
         {
             bool result = false;
@@ -62,7 +78,11 @@ namespace ManagedCertificates
 
             for (int i = 0; i < urlArray.cUrl; i++)
             {
-                var url = urlArray.rgwszUrl[i];
+                IntPtr pCrlContext = DownloadCrl(urlArray.rgwszUrl[i]);
+
+                if (pCrlContext == IntPtr.Zero) continue;
+
+                break;
             }
 
             return result;
