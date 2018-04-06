@@ -40,22 +40,12 @@ namespace ManagedCertificates
         public static IntPtr CONTEXT_OID_CRL = new IntPtr(2);
         public const int CERT_VERIFY_REV_SERVER_OCSP_FLAG = 0x00000008;
         public const int CERT_CONTEXT_REVOCATION_TYPE = 1;
-        public const int CERT_FIND_SUBJECT_STR = 0x00080007;
         public const int X509_ASN_ENCODING = 0x00000001;
         public const int PKCS_7_ASN_ENCODING = 0x00010000;
-
-        [DllImport("crypt32.dll")]
-        public static extern IntPtr CertFindCertificateInStore(IntPtr hCertStore, int dwEncoding, int dwFindFlags, int dwFindType, IntPtr pvFindParam, IntPtr pPrevCertContext);
-
+        
         [DllImport("crypt32.dll")]
         public static extern bool CertVerifyRevocation(int dwEncoding, int dwRevType, int cContext, IntPtr[] rgpvContext, int dwFlags, IntPtr pRevPara, CERT_REVOCATION_STATUS revocationStatus);
-
-        [DllImport("crypt32.dll")]
-        public static extern bool CertFreeCertificateContext(IntPtr pCertContext);
-
-        [DllImport("crypt32.dll")]
-        public static extern bool CertCloseStore(IntPtr hCertStore, int dwFlags);
-
+        
         [DllImport("cryptnet.dll")]
         public static extern bool CryptGetObjectUrl(IntPtr pszUrlOid, IntPtr pvPara, int dwFlags, IntPtr pUrlArray, ref int size, IntPtr pUrlInfo, IntPtr pcbUrlInfo, IntPtr pvReserved);
 
