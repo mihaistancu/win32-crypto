@@ -102,15 +102,14 @@ namespace ManagedCertificates
 
         static void Main(string[] args)
         {
-            var store = OpenStore();
+            using (var store = OpenStore())
+            {
+                IntPtr pCertContext = GetCertificate(store);
 
-            IntPtr pCertContext = GetCertificate(store);
+                bool isOcspValid = CheckOcsp(pCertContext);
 
-            bool isOcspValid = CheckOcsp(pCertContext);
-
-            bool isCrlValid = CheckCrl(pCertContext);
-
-            store.Close();
+                bool isCrlValid = CheckCrl(pCertContext);
+            }
         }
     }
 }
