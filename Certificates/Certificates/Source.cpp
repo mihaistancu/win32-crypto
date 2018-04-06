@@ -12,13 +12,6 @@ PCCERT_CONTEXT GetCertificate(HCERTSTORE hCertStore)
 	return CertFindCertificateInStore(hCertStore, dwEncoding, dwFindFlags, dwFindType, pvFindParam, pPrevCertContext);
 }
 
-CERT_REVOCATION_STATUS GetEmptyRevocationStatus()
-{
-	CERT_REVOCATION_STATUS revocationStatus;
-	revocationStatus.cbSize = sizeof(CERT_REVOCATION_STATUS);
-	return revocationStatus;
-}
-
 bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 {
 	DWORD dwEncoding = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
@@ -27,7 +20,8 @@ bool CheckOcsp(PCCERT_CONTEXT pCertContext)
 	PVOID rgpvContext[] = { (PVOID)pCertContext };
 	DWORD dwFlags = CERT_VERIFY_REV_SERVER_OCSP_FLAG;
 	PCERT_REVOCATION_PARA pRevPara = NULL;
-	CERT_REVOCATION_STATUS revocationStatus = GetEmptyRevocationStatus();
+	CERT_REVOCATION_STATUS revocationStatus;
+	revocationStatus.cbSize = sizeof(CERT_REVOCATION_STATUS);
 
 	return CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, &revocationStatus);
 }
