@@ -6,15 +6,10 @@ namespace ManagedCertificates
 {
     class Program
     {
-        static IntPtr GetCertificate(IntPtr hCertStore)
+        static IntPtr GetCertificate(X509Store store)
         {
-            int dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
-            int dwFindFlags = 0;
-            int dwFindType = Win32.CERT_FIND_SUBJECT_STR;
-            IntPtr pvFindParam = Marshal.StringToHGlobalUni("leaf");
-            IntPtr pPrevCertContext = IntPtr.Zero;
-
-            return Win32.CertFindCertificateInStore(hCertStore, dwEncoding, dwFindFlags, dwFindType, pvFindParam, pPrevCertContext);
+            var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, "leaf", false);
+            return certificates[0].Handle;
         }
         
         static bool CheckOcsp(IntPtr pCertContext)
@@ -103,14 +98,12 @@ namespace ManagedCertificates
             var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.MaxAllowed);
             
-            IntPtr pCertContext = GetCertificate(store.StoreHandle);
+            IntPtr pCertContext = GetCertificate(store);
 
             bool isOcspValid = CheckOcsp(pCertContext);
 
             bool isCrlValid = CheckCrl(pCertContext);
-
-            Win32.CertFreeCertificateContext(pCertContext);
-
+            
             store.Close();
         }
     }
