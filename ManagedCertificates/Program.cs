@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ManagedCertificates
 {
@@ -99,9 +100,10 @@ namespace ManagedCertificates
 
         static void Main(string[] args)
         {
-            IntPtr hCertStore = Win32.CertOpenSystemStore(IntPtr.Zero, "My");
-
-            IntPtr pCertContext = GetCertificate(hCertStore);
+            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.MaxAllowed);
+            
+            IntPtr pCertContext = GetCertificate(store.StoreHandle);
 
             bool isOcspValid = CheckOcsp(pCertContext);
 
@@ -109,7 +111,7 @@ namespace ManagedCertificates
 
             Win32.CertFreeCertificateContext(pCertContext);
 
-            Win32.CertCloseStore(hCertStore, 0);
+            store.Close();
         }
     }
 }
