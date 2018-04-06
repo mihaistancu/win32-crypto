@@ -9,22 +9,9 @@ namespace ManagedCertificates
         public class CRYPT_URL_ARRAY
         {
             public int cUrl;
-            public string[] rgwszUrl;
-
-            public CRYPT_URL_ARRAY(IntPtr pointer)
-            {
-                cUrl = Marshal.ReadInt16(pointer);
-                IntPtr root = Marshal.ReadIntPtr(pointer, Marshal.SizeOf(cUrl));
-                IntPtr[] outPointers = new IntPtr[cUrl];
-                Marshal.Copy(root, outPointers, 0, cUrl);
-                rgwszUrl = new string[cUrl];
-                for (int i = 0; i < cUrl; i++)
-                {
-                    rgwszUrl[i] = Marshal.PtrToStringUni(outPointers[i]);
-                }
-            }
+            public IntPtr rgwszUrl;           
         }
-
+        
         [StructLayout(LayoutKind.Sequential)]
         public class CERT_REVOCATION_STATUS
         {

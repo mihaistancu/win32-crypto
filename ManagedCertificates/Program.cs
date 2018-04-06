@@ -32,7 +32,7 @@ namespace ManagedCertificates
             return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }
 
-        static Win32.CRYPT_URL_ARRAY GetCrlUrls(X509Certificate2 certificate)
+        static string[] GetCrlUrls(X509Certificate2 certificate)
         {
             IntPtr pszUrlOid = Win32.URL_OID_CERTIFICATE_CRL_DIST_POINT;
             IntPtr pvPara = certificate.Handle;
@@ -47,7 +47,11 @@ namespace ManagedCertificates
             pUrlArray = Marshal.AllocHGlobal(size);
             Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
 
-            return new Win32.CRYPT_URL_ARRAY(pUrlArray);
+            Win32.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<Win32.CRYPT_URL_ARRAY>(pUrlArray);
+            var urls = MarshalExtensions.PtrToStringArray(urlArray.rgwszUrl, urlArray.cUrl);
+            Marshal.FreeHGlobal(pUrlArray);
+
+            return urls;
         }
 
         static IntPtr DownloadCrl(string url)
@@ -81,11 +85,11 @@ namespace ManagedCertificates
         {
             bool result = false;
 
-            Win32.CRYPT_URL_ARRAY urlArray = GetCrlUrls(certificate);
+            string[] urlArray = GetCrlUrls(certificate);
 
-            for (int i = 0; i < urlArray.cUrl; i++)
+            for (int i = 0; i < urlArray.Length; i++)
             {
-                IntPtr pCrlContext = DownloadCrl(urlArray.rgwszUrl[i]);
+                IntPtr pCrlContext = DownloadCrl(urlArray[i]);
 
                 if (pCrlContext == IntPtr.Zero) continue;
 
