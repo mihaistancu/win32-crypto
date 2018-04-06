@@ -1,6 +1,14 @@
 #include <windows.h>
 #include <wincrypt.h>
 
+HCERTSTORE OpenStore()
+{
+	HCRYPTPROV_LEGACY hProv = NULL;
+	LPCWSTR szSubsystemProtocol = L"My";
+
+	return CertOpenSystemStore(hProv, szSubsystemProtocol);
+}
+
 PCCERT_CONTEXT GetCertificate(HCERTSTORE hCertStore)
 {	
 	DWORD dwEncoding = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
@@ -99,7 +107,7 @@ bool CheckCrl(PCCERT_CONTEXT pCertContext)
 
 void main()
 {
-	HCERTSTORE hCertStore = CertOpenSystemStore(NULL, L"My");
+	HCERTSTORE hCertStore = OpenStore();
 
 	PCCERT_CONTEXT pCertContext = GetCertificate(hCertStore);
 

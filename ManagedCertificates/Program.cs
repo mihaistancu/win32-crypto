@@ -6,6 +6,13 @@ namespace ManagedCertificates
 {
     class Program
     {
+        static X509Store OpenStore()
+        {
+            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.MaxAllowed);
+            return store;
+        }
+
         static IntPtr GetCertificate(X509Store store)
         {
             var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, "leaf", false);
@@ -95,15 +102,14 @@ namespace ManagedCertificates
 
         static void Main(string[] args)
         {
-            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.MaxAllowed);
-            
+            var store = OpenStore();
+
             IntPtr pCertContext = GetCertificate(store);
 
             bool isOcspValid = CheckOcsp(pCertContext);
 
             bool isCrlValid = CheckCrl(pCertContext);
-            
+
             store.Close();
         }
     }
