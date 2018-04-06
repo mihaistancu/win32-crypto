@@ -13,18 +13,17 @@ namespace ManagedCertificates
             return store;
         }
 
-        static IntPtr GetCertificate(X509Store store)
+        static X509Certificate2 GetCertificate(X509Store store)
         {
-            var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, "leaf", false);
-            return certificates[0].Handle;
+            return store.Certificates.Find(X509FindType.FindBySubjectName, "leaf", false)[0];
         }
         
-        static bool CheckOcsp(IntPtr pCertContext)
+        static bool CheckOcsp(X509Certificate2 certificate)
         {
             int dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
             int dwRevType = Win32.CERT_CONTEXT_REVOCATION_TYPE;
             int cContext = 1;
-            IntPtr[] rgpvContext = { pCertContext };
+            IntPtr[] rgpvContext = { certificate.Handle };
             int dwFlags = Win32.CERT_VERIFY_REV_SERVER_OCSP_FLAG;
             IntPtr pRevPara = IntPtr.Zero;
             var revocationStatus = new Win32.CERT_REVOCATION_STATUS();
@@ -33,10 +32,10 @@ namespace ManagedCertificates
             return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }
 
-        static Win32.CRYPT_URL_ARRAY GetCrlUrls(IntPtr pCertContext)
+        static Win32.CRYPT_URL_ARRAY GetCrlUrls(X509Certificate2 certificate)
         {
             IntPtr pszUrlOid = Win32.URL_OID_CERTIFICATE_CRL_DIST_POINT;
-            IntPtr pvPara = pCertContext;
+            IntPtr pvPara = certificate.Handle;
             int dwFlags = 0;
             IntPtr pUrlArray = IntPtr.Zero;
             int size = 0;
@@ -78,11 +77,11 @@ namespace ManagedCertificates
             return pCrlEntry == IntPtr.Zero;
         }
 
-        static bool CheckCrl(IntPtr pCertContext)
+        static bool CheckCrl(X509Certificate2 certificate)
         {
             bool result = false;
 
-            Win32.CRYPT_URL_ARRAY urlArray = GetCrlUrls(pCertContext);
+            Win32.CRYPT_URL_ARRAY urlArray = GetCrlUrls(certificate);
 
             for (int i = 0; i < urlArray.cUrl; i++)
             {
@@ -90,7 +89,7 @@ namespace ManagedCertificates
 
                 if (pCrlContext == IntPtr.Zero) continue;
 
-                result = Verify(pCertContext, pCrlContext);
+                result = Verify(certificate.Handle, pCrlContext);
 
                 Win32.CertFreeCRLContext(pCrlContext);
 
@@ -104,11 +103,11 @@ namespace ManagedCertificates
         {
             using (var store = OpenStore())
             {
-                IntPtr pCertContext = GetCertificate(store);
+                X509Certificate2 certificate = GetCertificate(store);
 
-                bool isOcspValid = CheckOcsp(pCertContext);
+                bool isOcspValid = CheckOcsp(certificate);
 
-                bool isCrlValid = CheckCrl(pCertContext);
+                bool isCrlValid = CheckCrl(certificate);
             }
         }
     }
