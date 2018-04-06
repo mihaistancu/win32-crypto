@@ -1,1 +1,8 @@
 map DWORD to uint
+check if CRYPT_URL_ARRAY is freed correctly
+perform error-checking
+
+test delta CRLs
+test if CRL is verified (signed by issuer)
+
+chain
