@@ -17,7 +17,7 @@ namespace ManagedCertificates
 
                     Ocsp.Check(certificate);
 
-                    bool isCrlValid = Crl.Check(certificate);
+                    Crl.Check(certificate);
                 }
             }
             catch (Exception e)

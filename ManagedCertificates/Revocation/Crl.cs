@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using ManagedCertificates.Revocation.Exceptions;
 using ManagedCertificates.Win32;
 
 namespace ManagedCertificates.Revocation
 {
     public static class Crl
     {
-        public static bool Check(X509Certificate2 certificate)
+        public static void Check(X509Certificate2 certificate)
         {
-            bool result = false;
-
             string[] urlArray = GetCrlUrls(certificate);
 
             for (int i = 0; i < urlArray.Length; i++)
@@ -19,14 +18,17 @@ namespace ManagedCertificates.Revocation
 
                 if (pCrlContext == IntPtr.Zero) continue;
 
-                result = Verify(certificate.Handle, pCrlContext);
-
+                var result = Verify(certificate.Handle, pCrlContext);
+                
                 CAPI.CertFreeCRLContext(pCrlContext);
 
-                break;
-            }
+                if (result)
+                {
+                    return;
+                }
 
-            return result;
+                throw new RevocationException(0, 0);
+            }
         }
 
         private static string[] GetCrlUrls(X509Certificate2 certificate)
