@@ -29,6 +29,8 @@ namespace ManagedCertificates.Revocation
 
                 throw new RevocationException(0, 0);
             }
+
+            throw new RevocationException(0, 0);
         }
 
         private static string[] GetCrlUrls(X509Certificate2 certificate)
