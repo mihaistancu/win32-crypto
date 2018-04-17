@@ -72,13 +72,16 @@ namespace ManagedCertificates
 
         static bool Verify(IntPtr pCertContext, IntPtr pCrlContext)
         {
-            uint dwFlags = 0;
-            IntPtr pvReserved = IntPtr.Zero;
-            IntPtr pCrlEntry = IntPtr.Zero;
+            var certContext = (Win32.CERT_CONTEXT)Marshal.PtrToStructure(pCertContext, typeof(Win32.CERT_CONTEXT));
+            var crlContext = (Win32.CRL_CONTEXT)Marshal.PtrToStructure(pCrlContext, typeof(Win32.CRL_CONTEXT));
 
-            Win32.CertFindCertificateInCRL(pCertContext, pCrlContext, dwFlags, pvReserved, ref pCrlEntry);
-
-            return pCrlEntry == IntPtr.Zero;
+            uint dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
+            IntPtr pCertId = certContext.pCertInfo;
+            uint cCrlInfo = 1;
+            IntPtr[] rgpCrlInfo = new IntPtr[1];
+            rgpCrlInfo[0] = crlContext.pCrlInfo;
+            
+            return Win32.CertVerifyCRLRevocation(dwEncoding, pCertId, cCrlInfo, rgpCrlInfo);
         }
 
         static bool CheckCrl(X509Certificate2 certificate)

@@ -6,6 +6,26 @@ namespace ManagedCertificates
     class Win32
     {
         [StructLayout(LayoutKind.Sequential)]
+        internal struct CERT_CONTEXT
+        {
+            internal uint dwCertEncodingType;
+            internal IntPtr pbCertEncoded;
+            internal uint cbCertEncoded;
+            internal IntPtr pCertInfo;
+            internal IntPtr hCertStore;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct CRL_CONTEXT
+        {
+            internal uint dwCertEncodingType;
+            internal IntPtr pbCrlEncoded;
+            internal uint cbCrlEncoded;
+            internal IntPtr pCrlInfo;
+            internal IntPtr hCertStore;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         public class CRYPT_URL_ARRAY
         {
             public uint cUrl;
@@ -32,16 +52,16 @@ namespace ManagedCertificates
         
         [DllImport("crypt32.dll")]
         public static extern bool CertVerifyRevocation(uint dwEncoding, uint dwRevType, uint cContext, IntPtr[] rgpvContext, uint dwFlags, IntPtr pRevPara, CERT_REVOCATION_STATUS revocationStatus);
-        
+
+        [DllImport("crypt32.dll")]
+        public static extern bool CertVerifyCRLRevocation(uint dwEncoding, IntPtr pCertId, uint cCrlInfo, IntPtr[] rgpCrlInfo);
+
         [DllImport("cryptnet.dll")]
         public static extern bool CryptGetObjectUrl(IntPtr pszUrlOid, IntPtr pvPara, uint dwFlags, IntPtr pUrlArray, ref uint pcbUrlArray, IntPtr pUrlInfo, ref uint pcbUrlInfo, IntPtr pvReserved);
 
         [DllImport("cryptnet.dll")]
         public static extern bool CryptRetrieveObjectByUrl(string pszUrl, IntPtr pszObjectOid, uint dwRetrievalFlags, uint dwTimeout, ref IntPtr ppvObject, IntPtr hAsyncRetrieve, IntPtr pCredentials, IntPtr pvVerify, IntPtr pAuxInfo);
-
-        [DllImport("crypt32.dll")]
-        public static extern void CertFindCertificateInCRL(IntPtr pCertContext, IntPtr pCrlContext, uint dwFlags, IntPtr pvReserved, ref IntPtr pCrlEntry);
-
+        
         [DllImport("crypt32.dll")]
         public static extern void CertFreeCRLContext(IntPtr pCrlContext);
     }
