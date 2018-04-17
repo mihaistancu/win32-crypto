@@ -26,8 +26,7 @@ namespace ManagedCertificates
             IntPtr[] rgpvContext = { certificate.Handle };
             uint dwFlags = Win32.CERT_VERIFY_REV_SERVER_OCSP_FLAG;
             IntPtr pRevPara = IntPtr.Zero;
-            var revocationStatus = new Win32.CERT_REVOCATION_STATUS();
-            revocationStatus.cbSize = (uint)Marshal.SizeOf(revocationStatus);
+            var revocationStatus = new Win32.CERT_REVOCATION_STATUS(Marshal.SizeOf(typeof(Win32.CERT_REVOCATION_STATUS)));
 
             return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }

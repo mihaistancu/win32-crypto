@@ -38,6 +38,16 @@ namespace ManagedCertificates
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public class CERT_REVOCATION_STATUS
         {
+            public CERT_REVOCATION_STATUS(int size)
+            {
+                cbSize = (uint)size;
+                dwIndex = 0;
+                dwError = 0;
+                dwReason = 0;
+                fHasFreshnessTime = false;
+                dwFreshnessTime = 0;
+            }
+
             public uint cbSize;
             public uint dwIndex;
             public uint dwError;
