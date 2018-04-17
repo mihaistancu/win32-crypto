@@ -1,9 +1,7 @@
-perform error-checking
+perform error-checking for CRL
 
 test delta CRLs
 test if CRL is verified (signed by issuer)
 what about multiple dist points (not just multiple URLs in one dist point)
 relative CRL URL?
 CRL request timeout can be standard?
-
-chain
