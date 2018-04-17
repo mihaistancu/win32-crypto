@@ -7,7 +7,14 @@ namespace ManagedCertificates
     {
         internal const string CRYPT32 = "crypt32.dll";
         internal const string CRYPTNET = "cryptnet.dll";
-       
+
+        public static readonly IntPtr URL_OID_CERTIFICATE_CRL_DIST_POINT = new IntPtr(2);
+        public static readonly IntPtr CONTEXT_OID_CRL = new IntPtr(2);
+        public const uint CERT_VERIFY_REV_SERVER_OCSP_FLAG = 0x00000008;
+        public const uint CERT_CONTEXT_REVOCATION_TYPE = 1;
+        public const uint X509_ASN_ENCODING = 0x00000001;
+        public const uint PKCS_7_ASN_ENCODING = 0x00010000;
+        
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal struct CERT_CONTEXT
         {
@@ -56,13 +63,6 @@ namespace ManagedCertificates
             public uint dwFreshnessTime;
         }
         
-        public static readonly IntPtr URL_OID_CERTIFICATE_CRL_DIST_POINT = new IntPtr(2);
-        public static readonly IntPtr CONTEXT_OID_CRL = new IntPtr(2);
-        public const uint CERT_VERIFY_REV_SERVER_OCSP_FLAG = 0x00000008;
-        public const uint CERT_CONTEXT_REVOCATION_TYPE = 1;
-        public const uint X509_ASN_ENCODING = 0x00000001;
-        public const uint PKCS_7_ASN_ENCODING = 0x00010000;
-
         [DllImport(CRYPT32, CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern bool CertVerifyRevocation(uint dwEncoding, uint dwRevType, uint cContext, IntPtr[] rgpvContext, uint dwFlags, IntPtr pRevPara, CERT_REVOCATION_STATUS revocationStatus);
 
