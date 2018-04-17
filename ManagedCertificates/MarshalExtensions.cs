@@ -14,7 +14,7 @@ namespace ManagedCertificates
             var result = new string[arrayLength];
             for (int i = 0; i < arrayLength; i++)
             {
-                result[i] = Marshal.PtrToStringAuto(outPointers[i]);
+                result[i] = Marshal.PtrToStringUni(outPointers[i]);
             }
             return result;
         }
