@@ -20,14 +20,14 @@ namespace ManagedCertificates
         
         static bool CheckOcsp(X509Certificate2 certificate)
         {
-            int dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
-            int dwRevType = Win32.CERT_CONTEXT_REVOCATION_TYPE;
-            int cContext = 1;
+            uint dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
+            uint dwRevType = Win32.CERT_CONTEXT_REVOCATION_TYPE;
+            uint cContext = 1;
             IntPtr[] rgpvContext = { certificate.Handle };
-            int dwFlags = Win32.CERT_VERIFY_REV_SERVER_OCSP_FLAG;
+            uint dwFlags = Win32.CERT_VERIFY_REV_SERVER_OCSP_FLAG;
             IntPtr pRevPara = IntPtr.Zero;
             var revocationStatus = new Win32.CERT_REVOCATION_STATUS();
-            revocationStatus.cbSize = Marshal.SizeOf(revocationStatus);
+            revocationStatus.cbSize = (uint)Marshal.SizeOf(revocationStatus);
 
             return Win32.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
         }
@@ -36,16 +36,16 @@ namespace ManagedCertificates
         {
             IntPtr pszUrlOid = Win32.URL_OID_CERTIFICATE_CRL_DIST_POINT;
             IntPtr pvPara = certificate.Handle;
-            int dwFlags = 0;
+            uint dwFlags = 0;
             IntPtr pUrlArray = IntPtr.Zero;
-            int size = 0;
+            uint cbUrlArray = 0;
             IntPtr pUrlInfo = IntPtr.Zero;
-            IntPtr pcbUrlInfo = IntPtr.Zero;
+            uint cbUrlInfo = 0;
             IntPtr pvReserved = IntPtr.Zero;
 
-            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
-            pUrlArray = Marshal.AllocHGlobal(size);
-            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref size, pUrlInfo, pcbUrlInfo, pvReserved);
+            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+            pUrlArray = Marshal.AllocHGlobal((int)cbUrlArray);
+            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
 
             Win32.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<Win32.CRYPT_URL_ARRAY>(pUrlArray);
             var urls = MarshalExtensions.PtrToStringArray(urlArray.rgwszUrl, urlArray.cUrl);
@@ -57,8 +57,8 @@ namespace ManagedCertificates
         static IntPtr DownloadCrl(string url)
         {
             IntPtr pszObjectOid = Win32.CONTEXT_OID_CRL;
-            int dwRetrievalFlags = 0;
-            int dwTimeout = 15000;
+            uint dwRetrievalFlags = 0;
+            uint dwTimeout = 15000;
             IntPtr ppvObject = IntPtr.Zero;
             IntPtr hAsyncRetrieve = IntPtr.Zero;
             IntPtr pCredentials = IntPtr.Zero;
@@ -72,7 +72,7 @@ namespace ManagedCertificates
 
         static bool Verify(IntPtr pCertContext, IntPtr pCrlContext)
         {
-            int dwFlags = 0;
+            uint dwFlags = 0;
             IntPtr pvReserved = IntPtr.Zero;
             IntPtr pCrlEntry = IntPtr.Zero;
 
