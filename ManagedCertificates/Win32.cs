@@ -5,6 +5,9 @@ namespace ManagedCertificates
 {
     class Win32
     {
+        internal const string CRYPT32 = "crypt32.dll";
+        internal const string CRYPTNET = "cryptnet.dll";
+
         [StructLayout(LayoutKind.Sequential)]
         internal struct CERT_CONTEXT
         {
@@ -50,19 +53,19 @@ namespace ManagedCertificates
         public const uint X509_ASN_ENCODING = 0x00000001;
         public const uint PKCS_7_ASN_ENCODING = 0x00010000;
         
-        [DllImport("crypt32.dll")]
+        [DllImport(CRYPT32)]
         public static extern bool CertVerifyRevocation(uint dwEncoding, uint dwRevType, uint cContext, IntPtr[] rgpvContext, uint dwFlags, IntPtr pRevPara, CERT_REVOCATION_STATUS revocationStatus);
 
-        [DllImport("crypt32.dll")]
+        [DllImport(CRYPT32)]
         public static extern bool CertVerifyCRLRevocation(uint dwEncoding, IntPtr pCertId, uint cCrlInfo, IntPtr[] rgpCrlInfo);
 
-        [DllImport("cryptnet.dll")]
+        [DllImport(CRYPTNET)]
         public static extern bool CryptGetObjectUrl(IntPtr pszUrlOid, IntPtr pvPara, uint dwFlags, IntPtr pUrlArray, ref uint pcbUrlArray, IntPtr pUrlInfo, ref uint pcbUrlInfo, IntPtr pvReserved);
 
-        [DllImport("cryptnet.dll")]
+        [DllImport(CRYPTNET)]
         public static extern bool CryptRetrieveObjectByUrl(string pszUrl, IntPtr pszObjectOid, uint dwRetrievalFlags, uint dwTimeout, ref IntPtr ppvObject, IntPtr hAsyncRetrieve, IntPtr pCredentials, IntPtr pvVerify, IntPtr pAuxInfo);
         
-        [DllImport("crypt32.dll")]
+        [DllImport(CRYPT32)]
         public static extern void CertFreeCRLContext(IntPtr pCrlContext);
     }
 }
