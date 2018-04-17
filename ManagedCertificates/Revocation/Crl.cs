@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using ManagedCertificates.Revocation.Exceptions;
 using ManagedCertificates.Win32;
@@ -44,15 +45,29 @@ namespace ManagedCertificates.Revocation
             uint cbUrlInfo = 0;
             IntPtr pvReserved = IntPtr.Zero;
 
-            CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
-            pUrlArray = Marshal.AllocHGlobal((int)cbUrlArray);
-            CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+            try
+            {
+                bool result = CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+                if (!result)
+                {
+                    throw new CryptographicException(Marshal.GetLastWin32Error());
+                }
 
-            CAPI.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<CAPI.CRYPT_URL_ARRAY>(pUrlArray);
-            var urls = MarshalExtensions.PtrToStringArray(urlArray.rgwszUrl, urlArray.cUrl);
-            Marshal.FreeHGlobal(pUrlArray);
+                pUrlArray = Marshal.AllocHGlobal((int) cbUrlArray);
 
-            return urls;
+                result = CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+                if (!result)
+                {
+                    throw new CryptographicException(Marshal.GetLastWin32Error());
+                }
+
+                CAPI.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<CAPI.CRYPT_URL_ARRAY>(pUrlArray);
+                return MarshalExtensions.PtrToStringArray(urlArray.rgwszUrl, urlArray.cUrl);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pUrlArray);
+            }
         }
 
         private static IntPtr DownloadCrl(string url)
