@@ -13,22 +13,31 @@ namespace ManagedCertificates.Revocation
         {
             string[] urlArray = GetCrlUrls(certificate);
 
-            for (int i = 0; i < urlArray.Length; i++)
+            foreach (var url in urlArray)
             {
-                IntPtr pCrlContext = DownloadCrl(urlArray[i]);
+                IntPtr pCrlContext = IntPtr.Zero;
 
-                if (pCrlContext == IntPtr.Zero) continue;
-
-                var result = Verify(certificate.Handle, pCrlContext);
-                
-                CAPI.CertFreeCRLContext(pCrlContext);
-
-                if (result)
+                try
                 {
-                    return;
-                }
+                    pCrlContext = DownloadCrl(url);
 
-                throw new RevocationException(0, 0);
+                    bool isGood = Verify(certificate.Handle, pCrlContext);
+
+                    if (isGood)
+                    {
+                        return;
+                    }
+
+                    break;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception);
+                }
+                finally
+                {
+                    CAPI.CertFreeCRLContext(pCrlContext);
+                }
             }
 
             throw new RevocationException(0, 0);
@@ -81,7 +90,11 @@ namespace ManagedCertificates.Revocation
             IntPtr pvVerify = IntPtr.Zero;
             IntPtr pAuxInfo = IntPtr.Zero;
 
-            CAPI.CryptRetrieveObjectByUrl(url, pszObjectOid, dwRetrievalFlags, dwTimeout, ref ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
+            var result = CAPI.CryptRetrieveObjectByUrl(url, pszObjectOid, dwRetrievalFlags, dwTimeout, ref ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
+            if (!result)
+            {
+                throw new CryptographicException(Marshal.GetLastWin32Error());
+            }
 
             return ppvObject;
         }
