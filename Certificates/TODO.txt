@@ -1,4 +1,5 @@
-perform error-checking for CRL
+make CRL verification error codes consistent with the ones from OCSP
+test that custom CRL verification logic is the same as the standard Windows
 
 test delta CRLs
 test if CRL is verified (signed by issuer)
