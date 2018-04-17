@@ -77,8 +77,7 @@ namespace ManagedCertificates
             uint dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
             IntPtr pCertId = certContext.pCertInfo;
             uint cCrlInfo = 1;
-            IntPtr[] rgpCrlInfo = new IntPtr[1];
-            rgpCrlInfo[0] = crlContext.pCrlInfo;
+            IntPtr[] rgpCrlInfo = { crlContext.pCrlInfo };
             
             return Win32.CertVerifyCRLRevocation(dwEncoding, pCertId, cCrlInfo, rgpCrlInfo);
         }
