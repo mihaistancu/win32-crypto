@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Revocation\Crl.cs" />
+    <Compile Include="Revocation\Exceptions\RevocationException.cs" />
     <Compile Include="Win32\MarshalExtensions.cs" />
     <Compile Include="Revocation\Ocsp.cs" />
     <Compile Include="Program.cs" />
