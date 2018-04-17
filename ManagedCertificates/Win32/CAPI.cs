@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace ManagedCertificates
+namespace ManagedCertificates.Win32
 {
-    class Win32
+    public static class CAPI
     {
         internal const string CRYPT32 = "crypt32.dll";
         internal const string CRYPTNET = "cryptnet.dll";

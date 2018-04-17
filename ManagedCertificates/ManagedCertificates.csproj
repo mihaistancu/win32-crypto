@@ -44,12 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Crl.cs" />
-    <Compile Include="MarshalExtensions.cs" />
-    <Compile Include="Ocsp.cs" />
+    <Compile Include="Revocation\Crl.cs" />
+    <Compile Include="Win32\MarshalExtensions.cs" />
+    <Compile Include="Revocation\Ocsp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Win32.cs" />
+    <Compile Include="Win32\CAPI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

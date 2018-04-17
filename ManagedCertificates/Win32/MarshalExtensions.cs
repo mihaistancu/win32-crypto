@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace ManagedCertificates
+namespace ManagedCertificates.Win32
 {
     public static class MarshalExtensions
     {

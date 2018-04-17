@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using ManagedCertificates.Win32;
 
-namespace ManagedCertificates
+namespace ManagedCertificates.Revocation
 {
     public static class Crl
     {
@@ -20,7 +21,7 @@ namespace ManagedCertificates
 
                 result = Verify(certificate.Handle, pCrlContext);
 
-                Win32.CertFreeCRLContext(pCrlContext);
+                CAPI.CertFreeCRLContext(pCrlContext);
 
                 break;
             }
@@ -30,7 +31,7 @@ namespace ManagedCertificates
 
         private static string[] GetCrlUrls(X509Certificate2 certificate)
         {
-            IntPtr pszUrlOid = Win32.URL_OID_CERTIFICATE_CRL_DIST_POINT;
+            IntPtr pszUrlOid = CAPI.URL_OID_CERTIFICATE_CRL_DIST_POINT;
             IntPtr pvPara = certificate.Handle;
             uint dwFlags = 0;
             IntPtr pUrlArray = IntPtr.Zero;
@@ -39,11 +40,11 @@ namespace ManagedCertificates
             uint cbUrlInfo = 0;
             IntPtr pvReserved = IntPtr.Zero;
 
-            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+            CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
             pUrlArray = Marshal.AllocHGlobal((int)cbUrlArray);
-            Win32.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
+            CAPI.CryptGetObjectUrl(pszUrlOid, pvPara, dwFlags, pUrlArray, ref cbUrlArray, pUrlInfo, ref cbUrlInfo, pvReserved);
 
-            Win32.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<Win32.CRYPT_URL_ARRAY>(pUrlArray);
+            CAPI.CRYPT_URL_ARRAY urlArray = Marshal.PtrToStructure<CAPI.CRYPT_URL_ARRAY>(pUrlArray);
             var urls = MarshalExtensions.PtrToStringArray(urlArray.rgwszUrl, urlArray.cUrl);
             Marshal.FreeHGlobal(pUrlArray);
 
@@ -52,7 +53,7 @@ namespace ManagedCertificates
 
         private static IntPtr DownloadCrl(string url)
         {
-            IntPtr pszObjectOid = Win32.CONTEXT_OID_CRL;
+            IntPtr pszObjectOid = CAPI.CONTEXT_OID_CRL;
             uint dwRetrievalFlags = 0;
             uint dwTimeout = 15000;
             IntPtr ppvObject = IntPtr.Zero;
@@ -61,22 +62,22 @@ namespace ManagedCertificates
             IntPtr pvVerify = IntPtr.Zero;
             IntPtr pAuxInfo = IntPtr.Zero;
 
-            Win32.CryptRetrieveObjectByUrl(url, pszObjectOid, dwRetrievalFlags, dwTimeout, ref ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
+            CAPI.CryptRetrieveObjectByUrl(url, pszObjectOid, dwRetrievalFlags, dwTimeout, ref ppvObject, hAsyncRetrieve, pCredentials, pvVerify, pAuxInfo);
 
             return ppvObject;
         }
 
         private static bool Verify(IntPtr pCertContext, IntPtr pCrlContext)
         {
-            var certContext = (Win32.CERT_CONTEXT)Marshal.PtrToStructure(pCertContext, typeof(Win32.CERT_CONTEXT));
-            var crlContext = (Win32.CRL_CONTEXT)Marshal.PtrToStructure(pCrlContext, typeof(Win32.CRL_CONTEXT));
+            var certContext = (CAPI.CERT_CONTEXT)Marshal.PtrToStructure(pCertContext, typeof(CAPI.CERT_CONTEXT));
+            var crlContext = (CAPI.CRL_CONTEXT)Marshal.PtrToStructure(pCrlContext, typeof(CAPI.CRL_CONTEXT));
 
-            uint dwEncoding = Win32.PKCS_7_ASN_ENCODING | Win32.X509_ASN_ENCODING;
+            uint dwEncoding = CAPI.PKCS_7_ASN_ENCODING | CAPI.X509_ASN_ENCODING;
             IntPtr pCertId = certContext.pCertInfo;
             uint cCrlInfo = 1;
             IntPtr[] rgpCrlInfo = { crlContext.pCrlInfo };
 
-            return Win32.CertVerifyCRLRevocation(dwEncoding, pCertId, cCrlInfo, rgpCrlInfo);
+            return CAPI.CertVerifyCRLRevocation(dwEncoding, pCertId, cCrlInfo, rgpCrlInfo);
         }
     }
 }
