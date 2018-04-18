@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using ManagedCertificates.Revocation.Exceptions;
 using ManagedCertificates.Win32;
 using ManagedCertificatesTests.Certificates;
+using ManagedCertificatesTests.Servers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ManagedCertificatesTests
@@ -33,7 +37,29 @@ namespace ManagedCertificatesTests
                 CrlEndpoints = new [] {"http://localhost:9090/crl1", "http://localhost:9090/crl2", "http://localhost:9090/crl3" }
             };
             var leaf = leafGenerator.Generate();
-            
+
+            string baseAddress = "http://localhost:9090/";
+
+            var config = new Dictionary<string, HttpResponseMessage>
+            {
+                {"crl1", BinaryMessage(1, 2, 3)},
+                {"crl2", BinaryMessage(5, 2, 3)},
+                {"crl3", BinaryMessage(7, 2, 3)}
+            };
+
+            using (StaticHttpServer.Start(baseAddress, config))
+            {
+                Check(leaf);
+            }
+        }
+        
+        public static HttpResponseMessage BinaryMessage(params byte[] content)
+        {
+            return new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new ByteArrayContent(content)
+            };
         }
 
         public static void Check(X509Certificate2 certificate)
