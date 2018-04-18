@@ -9,11 +9,27 @@ namespace ManagedCertificatesTests
         [TestMethod]
         public void TestMethod1()
         {
-            var generator = new Generator
+            var rootGenerator = new Generator
             {
                 IsCertificateAuthority = true
             };
-            var root = generator.Generate();
+            var root = rootGenerator.Generate();
+
+            var caGenerator = new Generator
+            {
+                IsCertificateAuthority = true,
+                Issuer = root
+            };
+            var ca = caGenerator.Generate();
+
+            var leafGenerator = new Generator
+            {
+                Issuer = ca,
+                CrlEndpoints = new [] {"http://localhost:9090/crl1", "http://localhost:9090/crl2", "http://localhost:9090/crl3" }
+            };
+            var leaf = leafGenerator.Generate();
+
+
         }
     }
 }
