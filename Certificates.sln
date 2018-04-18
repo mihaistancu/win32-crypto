@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateToolbox", "CertificateToolbox\CertificateToolbox.csproj", "{4A5F0EFD-F100-44DE-BE3C-63531F1B8C37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyGenerator", "KeyGenerator\KeyGenerator.csproj", "{244CC588-8FC8-4F7A-AC0C-4C10F7BF5A51}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A5F0EFD-F100-44DE-BE3C-63531F1B8C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A5F0EFD-F100-44DE-BE3C-63531F1B8C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A5F0EFD-F100-44DE-BE3C-63531F1B8C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A5F0EFD-F100-44DE-BE3C-63531F1B8C37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{244CC588-8FC8-4F7A-AC0C-4C10F7BF5A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{244CC588-8FC8-4F7A-AC0C-4C10F7BF5A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{244CC588-8FC8-4F7A-AC0C-4C10F7BF5A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{244CC588-8FC8-4F7A-AC0C-4C10F7BF5A51}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
