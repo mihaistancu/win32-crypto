@@ -51,7 +51,7 @@ namespace ManagedCertificates.Win32
                 dwIndex = 0;
                 dwError = 0;
                 dwReason = 0;
-                fHasFreshnessTime = false;
+                fHasFreshnessTime = 0;
                 dwFreshnessTime = 0;
             }
 
@@ -59,7 +59,7 @@ namespace ManagedCertificates.Win32
             public uint dwIndex;
             public uint dwError;
             public uint dwReason;
-            public bool fHasFreshnessTime;
+            public int fHasFreshnessTime;
             public uint dwFreshnessTime;
         }
         
