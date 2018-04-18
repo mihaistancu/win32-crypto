@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using ManagedCertificates.Revocation.Exceptions;
 using ManagedCertificates.Win32;
 using ManagedCertificatesTests.Certificates;
 using ManagedCertificatesTests.Servers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.BouncyCastle.Math;
 
 namespace ManagedCertificatesTests
 {
@@ -38,31 +36,44 @@ namespace ManagedCertificatesTests
             };
             var leaf = leafGenerator.Generate();
 
-            string baseAddress = "http://localhost:9090/";
-
-            var config = new Dictionary<string, HttpResponseMessage>
+            using (var store = new X509Store(StoreName.Root, StoreLocation.LocalMachine))
             {
-                {"crl1", BinaryMessage(1, 2, 3)},
-                {"crl2", BinaryMessage(5, 2, 3)},
-                {"crl3", BinaryMessage(7, 2, 3)}
+                store.Open(OpenFlags.MaxAllowed);
+                store.Add(root);
+            }
+
+            using (var store = new X509Store(StoreName.CertificateAuthority, StoreLocation.LocalMachine))
+            {
+                store.Open(OpenFlags.MaxAllowed);
+                store.Add(ca);
+            }
+
+            using (var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+            {
+                store.Open(OpenFlags.MaxAllowed);
+                store.Add(leaf);
+            }
+
+            var generator = new Generator
+            {
+                Issuer = ca,
+                SerialNumber = new BigInteger(leaf.SerialNumber, 16)
             };
 
-            using (StaticHttpServer.Start(baseAddress, config))
+            using (var server = new HttpServer("http://localhost:9090/"))
             {
+                server.Setup("/crl1", "application/pkix-crl", generator.GetCrl(RevocationStatus.Unknown));
+                server.Setup("/crl2", "application/pkix-crl", generator.GetCrl(RevocationStatus.Valid));
+                server.Setup("/crl3", "application/pkix-crl", generator.GetCrl(RevocationStatus.Unknown));
+                
+                CryptNetCache.Clear();
+
                 Check(leaf);
             }
-        }
-        
-        public static HttpResponseMessage BinaryMessage(params byte[] content)
-        {
-            return new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new ByteArrayContent(content)
-            };
+
         }
 
-        public static void Check(X509Certificate2 certificate)
+        private void Check(X509Certificate2 certificate)
         {
             uint dwEncoding = CAPI.PKCS_7_ASN_ENCODING | CAPI.X509_ASN_ENCODING;
             uint dwRevType = CAPI.CERT_CONTEXT_REVOCATION_TYPE;
@@ -74,10 +85,7 @@ namespace ManagedCertificatesTests
 
             bool isGood = CAPI.CertVerifyRevocation(dwEncoding, dwRevType, cContext, rgpvContext, dwFlags, pRevPara, revocationStatus);
 
-            if (!isGood)
-            {
-                throw new RevocationException(revocationStatus.dwError, revocationStatus.dwReason);
-            }
+            var result = new CryptographicException((int)revocationStatus.dwError);
         }
     }
 }

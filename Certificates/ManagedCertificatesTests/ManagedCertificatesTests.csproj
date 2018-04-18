@@ -94,8 +94,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Certificates\RevocationStatus.cs" />
     <Compile Include="Servers\HttpServer.cs" />
-    <Compile Include="Servers\StaticContentHandler.cs" />
-    <Compile Include="Servers\StaticHttpServer.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
