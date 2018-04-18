@@ -1,6 +1,8 @@
 make CRL verification error codes consistent with the ones from OCSP
 test that custom CRL verification logic is the same as the standard Windows
 
+can CRL signer and certificate issuer be different?
+can we disable OCSP signer verification?
 test delta CRLs
 test if CRL is verified (signed by issuer)
 what about multiple dist points (not just multiple URLs in one dist point)
