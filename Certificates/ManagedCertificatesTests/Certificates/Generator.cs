@@ -42,6 +42,13 @@ namespace ManagedCertificatesTests.Certificates
         {
             random = new SecureRandom(new CryptoApiRandomGenerator());
             certificateGenerator = new X509V3CertificateGenerator();
+            
+            SerialNumber = new BigInteger(random.Next(1000000000).ToString());
+            SubjectName = "CN=" + Guid.NewGuid();
+            NotBefore = DateTime.Now.AddDays(-1);
+            NotAfter = DateTime.Now.AddDays(1);
+            OcspEndpoints = new string[0];
+            CrlEndpoints = new string[0];
         }
 
         public X509Certificate2 Generate()
