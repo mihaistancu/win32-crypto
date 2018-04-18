@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace CertificateToolbox
+namespace ManagedCertificatesTests.Certificates
 {
     public class CryptNetCache
     {

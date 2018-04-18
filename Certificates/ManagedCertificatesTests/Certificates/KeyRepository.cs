@@ -5,7 +5,7 @@ using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 
-namespace CertificateToolbox
+namespace ManagedCertificatesTests.Certificates
 {
     public class KeyRepository
     {

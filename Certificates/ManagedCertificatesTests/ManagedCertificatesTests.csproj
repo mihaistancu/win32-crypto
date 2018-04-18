@@ -54,11 +54,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CryptNetCache.cs" />
-    <Compile Include="Generator.cs" />
-    <Compile Include="KeyRepository.cs" />
+    <Compile Include="Certificates\CryptNetCache.cs" />
+    <Compile Include="Certificates\Generator.cs" />
+    <Compile Include="Certificates\KeyRepository.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="RevocationStatus.cs" />
+    <Compile Include="Certificates\RevocationStatus.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

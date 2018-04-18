@@ -15,7 +15,7 @@ using Org.BouncyCastle.X509.Extension;
 using X509Certificate2 = System.Security.Cryptography.X509Certificates.X509Certificate2;
 using X509KeyStorageFlags = System.Security.Cryptography.X509Certificates.X509KeyStorageFlags;
 
-namespace CertificateToolbox
+namespace ManagedCertificatesTests.Certificates
 {
     public class Generator
     {

@@ -1,4 +1,4 @@
-﻿namespace CertificateToolbox
+﻿namespace ManagedCertificatesTests.Certificates
 {
     public enum RevocationStatus
     {
